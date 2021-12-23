@@ -1,5 +1,5 @@
 unit frmUIMain;
-
+{$WARN SYMBOL_PLATFORM OFF}
 interface
 
 uses
@@ -36,6 +36,7 @@ uses
   Vcl.Imaging.pngimage
 , Soap.EncdDecd
 , System.IOUtils
+, System.NetEncoding
   ;
 
 procedure TUIMain.Base64ToImageFile(aBase64Str: string; aFileName: string);
@@ -101,7 +102,6 @@ begin
     .OnSet(TJSBinding.Create(
       procedure(const Parent: IJSObject; const Prop: IJSProperty)
       var
-        Img : TGraphic;
         lData: string;
         lFileName: string;
       begin
