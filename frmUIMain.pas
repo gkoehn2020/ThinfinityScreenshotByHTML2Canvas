@@ -18,9 +18,9 @@ type
     procedure btnViewScreenClick(Sender: TObject);
   private
     { Private declarations }
-    FXtagDir: string;
     ro: TJSObject;
     procedure Base64ToImageFile(aBase64Str: string; aFileName: string);
+    function GetJSDir: string;
   public
     { Public declarations }
   end;
@@ -87,38 +87,56 @@ begin
     end;
 end;
 
+function TUIMain.GetJSDir: string;
+var
+  lBaseDir : string;
+  lJSDirTest: string;
+begin
+  result := '';
+  lBaseDir := ExtractFilePath(ParamStr(0));
+  while (lBaseDir <> '') and (length(lBaseDir) > 2) do
+    begin
+      lJSDirTest := lBaseDir + 'js\';
+      if DirectoryExists(lJSDirTest) then
+        begin
+          result := lJSDirTest;
+          break;
+        end;
+      lBaseDir := ExtractFilePath(ExcludeTrailingBackSlash(lBaseDir));
+    end;
+end;
+
 procedure TUIMain.FormCreate(Sender: TObject);
 var
-  BaseDir : string;
+  lJSDir: string;
 begin
-  BaseDir := ExtractFilePath(ParamStr(0));
-  while BaseDir <> '' do begin
-    FXtagDir := BaseDir + 'js\';
-    if DirectoryExists(FXtagDir) then break;
-    BaseDir := ExtractFilePath(ExcludeTrailingBackSlash(BaseDir));
-  end;
-  ro := TJSObject.Create('ro');
-  ro.Properties.Add('data')
-    .OnSet(TJSBinding.Create(
-      procedure(const Parent: IJSObject; const Prop: IJSProperty)
-      var
-        lData: string;
-        lFileName: string;
-      begin
-        lData := Prop.AsString;
-        {2021-12-22 Property is coming in with spaces. Need to replace them with plus symbol.}
-        lData := StringReplace(lData, ' ', '+', [rfReplaceAll]);
-        {---}
-        lFileName := 'ScreenShot-' + formatdatetime('yyyymmddhhnnss',now) + '.png';
-        Base64ToImageFile(lData, lFileName);
-        UIMain.lbxScreens.Items.Add(lFileName);
-      end))
-    .AsString := '';
-  ro.Events.Add('dohtml2canvasop');
-  ro.ApplyModel;
-  VirtualUI.HTMLDoc.CreateSessionURL('/js/',FXtagDir);
-  VirtualUI.HTMLDoc.LoadScript('/js/html2canvas.min.js','');
-  VirtualUI.HTMLDoc.LoadScript('/js/vui-jsro.js','');
+  var lAppName := ParamStr(0);
+  lJSDir := GetJSDir;
+  if lJSDir <> '' then
+    begin
+      ro := TJSObject.Create('ro');
+      ro.Properties.Add('data')
+        .OnSet(TJSBinding.Create(
+          procedure(const Parent: IJSObject; const Prop: IJSProperty)
+          var
+            lData: string;
+            lFileName: string;
+          begin
+            lData := Prop.AsString;
+            {2021-12-22 Property is coming in with spaces. Need to replace them with plus symbol.}
+            lData := StringReplace(lData, ' ', '+', [rfReplaceAll]);
+            {---}
+            lFileName := 'ScreenShot-' + formatdatetime('yyyymmddhhnnss',now) + '.png';
+            Base64ToImageFile(lData, lFileName);
+            UIMain.lbxScreens.Items.Add(lFileName);
+          end))
+        .AsString := '';
+      ro.Events.Add('dohtml2canvasop');
+      ro.ApplyModel;
+      VirtualUI.HTMLDoc.CreateSessionURL('/js/', lJSDir);
+      VirtualUI.HTMLDoc.LoadScript('/js/html2canvas.min.js','');
+      VirtualUI.HTMLDoc.LoadScript('/js/vui-jsro.js','');
+    end;
 end;
 
 end.
