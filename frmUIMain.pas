@@ -83,7 +83,7 @@ begin
       lFileName := lbxScreens.items[lSelectedIdx];
       lFileName := TPath.Combine(BaseDir, lFileName);
       lUrl := VirtualUI.HTMLDoc.GetSafeURL(lFileName, 1);
-      VirtualUI.OpenLinkDlg(lURL, 'Screnshot');
+      VirtualUI.OpenLinkDlg(lURL, 'Screenshot Results');
     end;
 end;
 
