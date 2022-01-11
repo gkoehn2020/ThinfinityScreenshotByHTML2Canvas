@@ -13,9 +13,12 @@ type
     GroupBox1: TGroupBox;
     lbxScreens: TListBox;
     btnViewScreen: TButton;
+    Timer1: TTimer;
+    pnlTime: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure btnScreenshotClick(Sender: TObject);
     procedure btnViewScreenClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
     ro: TJSObject;
@@ -104,6 +107,11 @@ begin
         end;
       lBaseDir := ExtractFilePath(ExcludeTrailingBackSlash(lBaseDir));
     end;
+end;
+
+procedure TUIMain.Timer1Timer(Sender: TObject);
+begin
+  pnlTime.Caption := formatdatetime('mm-dd-yyy hh:mm:ss',now);
 end;
 
 procedure TUIMain.FormCreate(Sender: TObject);
